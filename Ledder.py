@@ -1,9 +1,9 @@
 import numpy as np
 
 class Ledder:
-    def __init__(self, plat_pos):
+    def __init__(self, position):
         self.appearance = 'rectangle'
-        self.position = np.array([plat_pos[0], plat_pos[1], plat_pos[0] + 32, plat_pos[1] + 154])
+        self.position = np.array([position[0], position[1], position[0] + 32, position[1] + 154])
         self.state = None
 
     def collision_check(self, character):

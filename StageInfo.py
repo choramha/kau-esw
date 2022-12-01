@@ -7,3 +7,7 @@ class Stage1:
         self.platform_o2_img = 'sprite/stage/stage_01_2.png'
         self.ledder = [(1095,47)] # 사다리 x축, y축
         self.ledder_img = 'sprite/Ledder.png'
+        self.flower = [(177,20),(448,169),(1064,20)] # 아이템 - 꽃 x축, y축
+        self.flower_img = 'sprite/Flower.png'
+        self.enemy_gasi = [(200,181),(798,32),(863,181),(897,181)]
+        self.enemy_gasi_img = 'sprite/Enemy_gasi.png'
