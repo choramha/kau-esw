@@ -115,11 +115,12 @@ class Character:
                 print(self.health)
             
             if(self.state == 'Enemy Collision'):
+                print(self.position, enemy.position)
                 if self.position[2] < enemy.position[2]:
                     move = -30
                 else :
                     move = 30
-
+                print("Move:",move)
                 self.position[0] += move 
                 self.position[2] += move
 
@@ -130,6 +131,8 @@ class Character:
                 if self.position[2] > 240:
                     self.position[0] = 200
                     self.position[2] = 240
+                self.state == None
+                break
 
     
     
