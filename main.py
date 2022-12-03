@@ -133,8 +133,7 @@ def main():
         #배경 이동
         cropmap_x1 = 0 + x
         cropmap_x2 = 240 + x
-
-            #맵 크기 벗어날 경우 더이상 이동하지 않게 막음 
+                #맵 크기 벗어날 경우 더이상 이동하지 않게 막음 
         if cropmap_x1 < 0:
             cropmap_x1 = 0
             cropmap_x2 = 240
@@ -149,6 +148,14 @@ def main():
         if my_character.state == 'move':
             if (cropmap_x1 == 0 or cropmap_x1 == 960):
                 screen_move = 0 #맵 끝에 도달한경우 이동 X
+            elif (my_character.position[0] > 100 and my_character.position[0] < 150):
+                if(command['right_pressed'] == True):
+                    my_character.position[0] -= 5
+                    my_character.position[2] -= 5
+
+                else: 
+                    my_character.position[0] += 5
+                    my_character.position[2] += 5
 
             for bottom in plat_list :
                 bottom.position[0] = (bottom.position[0] - screen_move)
@@ -162,6 +169,9 @@ def main():
             for flower in flower_list:
                 flower.position[0] -= screen_move
                 flower.position[2] -= screen_move
+
+                
+
 
         
         for flower in flower_list:
@@ -180,17 +190,7 @@ def main():
 
         
         my_draw = ImageDraw.Draw(cropImage)
-        
-"""        for platform in plat_list:
-            my_draw.rectangle(tuple(platform.position),fill = (255,255,255))
-        #my_draw.rectangle(tuple(ledder_1.position),fill = (0,0,0))
-        #my_draw.rectangle(tuple(enemy_1.position),fill = (0,0,0))
-        
-        if(flower_1.state != 'get'):
-            my_draw.rectangle(tuple(flower_1.position),fill = (50,255,50))
-            
-"""
-        #충돌체크 - 가시 / 바닥 
+                #충돌체크 - 가시 / 바닥 
         my_character.enemy_check(enemy_gasi_list)
         my_character.bottom_check(plat_list)
         
@@ -199,6 +199,19 @@ def main():
         cropImage.paste(characterImg, (position[0],position[1]),characterImg)
 
         joystick.disp.image(cropImage) 
+        
+        for platform in plat_list:
+            my_draw.rectangle(tuple(platform.position),fill = (255,255,255))
+        #my_draw.rectangle(tuple(ledder_1.position),fill = (0,0,0))
+        #my_draw.rectangle(tuple(enemy_1.position),fill = (0,0,0))
+        
+        """
+        if(flower_1.state != 'get'):
+            my_draw.rectangle(tuple(flower_1.position),fill = (50,255,50))
+            """
+            
+
+
 
 if __name__ == '__main__':
     main()

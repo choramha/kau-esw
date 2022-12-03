@@ -37,8 +37,8 @@ class Character:
                     self.position[2] -= 5
                     
                 if command['right_pressed']:
-                    self.position[0] += 3
-                    self.position[2] += 3
+                    self.position[0] += 5
+                    self.position[2] += 5
 
                 if self.position[0] < 0 :
                     self.position[0] = 0
