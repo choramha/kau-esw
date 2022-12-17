@@ -5,109 +5,41 @@ import numpy as np
 from Character import Character
 from colorsys import hsv_to_rgb
 from Joystick import Joystick
-from Platform import Platform
+from Platform import Platform, Goal
 from Ledder import Ledder
 from Enemy import Enemy_gasi, Enemy_monster
 from Flower import Flower
 from StageInfo import Stage1,Stage2,Stage3,Stage4,Stage5
+import time
 
 plat_list = []
 ledder_list = []
 enemy_gasi_list = []
 flower_list = []
 monster_list = []
-x = 0
+flower_pos_list = []
+
+#적 물리치거나 아이템 먹을때의 피드백 있음 good 
 
 def main():
     stage_idx = 1
+    global plat_list
+    global ledder_list
+    global enemy_gasi_list
+    global flower_list
+    global monster_list
+    global flower_pos_list
 
-
-    x = 0
     #stage = Stage1()
 
-    my_character = Character((0,150))
-    my_map = Image.open('sprite/Map.png')
+    my_character, my_map, goal = stage_init(stage_idx)
     character_src = Image.open('sprite/Character.png').convert("RGBA")
     characterImg = character_src.resize((30,33))
-    my_map,plat_list, ledder_list, enemy_gasi_list, flower_list,flower_pos_list, monster_list = stage_init(stage_idx)
-    print(plat_list, ledder_list, enemy_gasi_list, flower_list, monster_list)
+    monsterImg = Image.open('sprite/Enemy_monster.png').convert("RGBA")
 
-
-    
-    """
-    plat_list = [plat_bottom]
-    ledder_list = []
-    enemy_gasi_list = []
-    flower_list = []
-    monster_list = []
-    flower_pos_list = stage.flower #꽃 초기위치 
-    """
     joystick = Joystick()
+    x = 0
 
-    """
-    #맵 이미지 설정
-    my_map = Image.open('sprite/Map.png')
-    
-    stage_1 = Image.open(stage.platform_01_img)
-    stage_2 = Image.open(stage.platform_o2_img)
-
-    my_map.paste(stage_1,(0,120),stage_1)
-    my_map.paste(stage_2,(0,50),stage_2)
-    
-    cropImage = my_map.crop((0,0,240,240))
-
-    joystick.disp.image(cropImage)  
-
-
-    #캐릭터 설정 
-    character_src = Image.open('sprite/Character.png').convert("RGBA")
-    characterImg = character_src.resize((30,33))
-
-    my_character = Character((0,150))
-
-
-
-    #플랫폼 바닥 설정
-    for i in stage.platform_01:
-        plat = Platform((i[0],120,i[1]))
-        plat_list.append(plat)
-
-    for i in stage.platform_02:
-        plat = Platform((i[0],50,i[1]))
-        plat_list.append(plat)
-    
-    #사다리 설정 
-    for i in stage.ledder:
-        ledder = Ledder((i[0],i[1]))
-        ledder_list.append(ledder)
-
-    for ledder in ledder_list:
-        ledder_img = Image.open(stage.ledder_img)
-        my_map.paste(ledder_img,(ledder.position[0],ledder.position[1]),ledder_img)
-    
-    #적 - 가시 설정
-    for i in stage.enemy_gasi:
-        gasi = Enemy_gasi((i[0],i[1]))
-        enemy_gasi_list.append(gasi)
-
-    for enemy_gasi in enemy_gasi_list:
-        enemy_img = Image.open(stage.enemy_gasi_img)
-        my_map.paste(enemy_img,(enemy_gasi.position[0],enemy_gasi.position[1]),enemy_img)
-
-    my_map.save ("sprite/No_Flower.png")
-    #꽃 설정 
-    for i in stage.flower:
-        flower = Flower((i[0],i[1]))
-        flower_list.append(flower)
-
-    for flower in flower_list:
-        flower_img = Image.open(stage.flower_img)
-        my_map.paste(flower_img,(flower.position[0],flower.position[1]),flower_img)
-
-    for i in stage.enemy_monster:
-        monster = Enemy_monster((i[0],i[1]))
-        monster_list.append(monster)
-    """
     while True:
         screen_move = 0
         command = {'move': False, 'up_pressed': False , 'down_pressed': False, 'left_pressed': False, 'right_pressed': False}
@@ -116,7 +48,6 @@ def main():
         #사다리 상태 초기화 
         for ledder in ledder_list:
             ledder.state = None
-    
 
         if not joystick.button_U.value:  # up pressed
         
@@ -150,16 +81,18 @@ def main():
             screen_move += 5
 
         if not joystick.button_A.value: # A pressed
-            j = 'a_pressed'
+            print("A_pressed")
+            if my_character.isjump == 0:
+                my_character.jump(1)
             my_character.ceiling_check(plat_list)
-
+        
+        my_character.jump_update()
         my_character.move(command)
-        my_character.jump(j)
     
         #배경 이동
         cropmap_x1 = 0 + x
         cropmap_x2 = 240 + x
-                #맵 크기 벗어날 경우 더이상 이동하지 않게 막음 
+            #맵 크기 벗어날 경우 더이상 이동하지 않게 막음 
         if cropmap_x1 < 0:
             cropmap_x1 = 0
             cropmap_x2 = 240
@@ -170,10 +103,12 @@ def main():
         cropImage = my_map.crop((cropmap_x1,0,cropmap_x2,240))
 
 
-        #캐릭터가 이동한 것 처럼 보이게 나머지를 옮김 
+        #캐릭터가 이동한 것 처럼 보이게 나머지를 옮김
         if my_character.state == 'move':
+
             if (cropmap_x1 == 0 or cropmap_x1 == 960):
                 screen_move = 0 #맵 끝에 도달한경우 이동 X
+
             elif (my_character.position[0] > 100 and my_character.position[0] < 150):
 
                 if(command['right_pressed'] == True):
@@ -196,7 +131,16 @@ def main():
             for flower in flower_list:
                 flower.position[0] -= screen_move
                 flower.position[2] -= screen_move
+                
+            for monster in monster_list:
+                monster.position[0] -= screen_move
+                monster.position[2] -= screen_move
+                monster.move_range[0] -= screen_move
+                monster.move_range[1] -= screen_move
+                
 
+            goal.position[0] -= screen_move
+            goal.position[2] -= screen_move
                 
 
 
@@ -217,27 +161,39 @@ def main():
 
         
         my_draw = ImageDraw.Draw(cropImage)
-                #충돌체크 - 가시 / 바닥 
+            #충돌체크  
         for monster in monster_list:
-            monster.bottomCheck(plat_list)
+            monster.bottomCheck()
             monster.move()
-            my_draw.rectangle(tuple(monster.position),fill = (0,0,0))
+            cropImage.paste(monsterImg, (monster.position[0],monster.position[1]),monsterImg)
     
         my_character.enemy_check(enemy_gasi_list)
+        my_character.enemy_check(monster_list)
         my_character.bottom_check(plat_list)
-        
+        goal.collision_check(my_character)
+
         #캐릭터 현 위치를 보여줌 
         position = tuple(my_character.position)
         cropImage.paste(characterImg, (position[0],position[1]),characterImg)
-
         
-        
+        # 바닥, 가시 실제 위치 시각적으로 보여줌 
+        """
+        my_draw.rectangle(tuple(goal.position),fill = (0,0,0))
         for platform in plat_list:
             my_draw.rectangle(tuple(platform.position),fill = (255,255,255))
         for enemy_gasi in enemy_gasi_list:
-            print(enemy_gasi.position)
             my_draw.rectangle(tuple(enemy_gasi.position),fill = (255,255,255))
-        joystick.disp.image(cropImage) 
+        """
+        #골대에 닿을 경우 스테이지 넘어감 
+        if (goal.state == 'clear'):
+            print("CLEAR!!!")
+            stage_idx += 1
+            goal.state == None
+            x = 0
+            my_characetr,my_map,goal = stage_init(stage_idx)
+        
+        joystick.disp.image(cropImage)
+
         #my_draw.rectangle(tuple(ledder_1.position),fill = (0,0,0))
         #my_draw.rectangle(tuple(enemy_1.position),fill = (0,0,0))
         
@@ -247,6 +203,13 @@ def main():
             """
             
 def stage_init(stage_idx):
+    global plat_list
+    global ledder_list
+    global enemy_gasi_list
+    global flower_list
+    global monster_list
+    global flower_pos_list
+
     if (stage_idx == 1):
         stage = Stage1()
     elif(stage_idx == 2):
@@ -260,16 +223,20 @@ def stage_init(stage_idx):
     else:
         print("ERROR!!!!!!")
 
-    x = 0
-
         #캐릭터 설정 
+
     character_src = Image.open('sprite/Character.png').convert("RGBA")
     characterImg = character_src.resize((30,33))
 
+    ledderImg = Image.open('sprite/Ledder.png').convert("RGBA")
+    flowerImg = Image.open('sprite/Flower.png').convert("RGBA")
+    enemy_gasiImg = Image.open('sprite/Enemy_gasi.png').convert("RGBA")
+    goalImg = Image.open('sprite/Goal.png').convert("RGBA")
     my_character = Character((0,150))
 
     #리스트 비우기
     plat_bottom = Platform((-1000,200,5000))
+    plat_celling = Platform((-100,-16,5000))
     plat_list = [plat_bottom]
     ledder_list = []
     enemy_gasi_list = []
@@ -289,9 +256,6 @@ def stage_init(stage_idx):
     
     cropImage = my_map.crop((0,0,240,240))
 
-    joystick.disp.image(cropImage)
-    
-
     #플랫폼 바닥 설정
     for i in stage.platform_01:
         plat = Platform((i[0],120,i[1]))
@@ -300,6 +264,7 @@ def stage_init(stage_idx):
     for i in stage.platform_02:
         plat = Platform((i[0],50,i[1]))
         plat_list.append(plat)
+    plat_list.append(plat_celling)
     
     #사다리 설정 
     for i in stage.ledder:
@@ -307,8 +272,7 @@ def stage_init(stage_idx):
         ledder_list.append(ledder)
 
     for ledder in ledder_list:
-        ledder_img = Image.open(stage.ledder_img)
-        my_map.paste(ledder_img,(ledder.position[0],ledder.position[1]),ledder_img)
+        my_map.paste(ledderImg,(ledder.position[0],ledder.position[1]),ledderImg)
     
     #적 - 가시 설정
     for i in stage.enemy_gasi:
@@ -316,8 +280,10 @@ def stage_init(stage_idx):
         enemy_gasi_list.append(gasi)
 
     for enemy_gasi in enemy_gasi_list:
-        enemy_img = Image.open(stage.enemy_gasi_img)
-        my_map.paste(enemy_img,(enemy_gasi.position[0],enemy_gasi.position[1]),enemy_img)
+        my_map.paste(enemy_gasiImg,(enemy_gasi.position[0],enemy_gasi.position[1]),enemy_gasiImg)
+
+    goal = Goal((stage.goal[0],stage.goal[1]))  
+    my_map.paste(goalImg,(goal.position[0],goal.position[1]),goalImg)
 
     my_map.save ("sprite/No_Flower.png")
     #꽃 설정 
@@ -326,14 +292,14 @@ def stage_init(stage_idx):
         flower_list.append(flower)
 
     for flower in flower_list:
-        flower_img = Image.open(stage.flower_img)
-        my_map.paste(flower_img,(flower.position[0],flower.position[1]),flower_img)
+        my_map.paste(flowerImg,(flower.position[0],flower.position[1]),flowerImg)
 
+    #적 - 몬스터 설정 
     for i in stage.enemy_monster:
-        monster = Enemy_monster((i[0],i[1]))
+        monster = Enemy_monster((i[0],i[1]),(i[2],i[3]))
         monster_list.append(monster)
 
-    return my_map,plat_list, ledder_list, enemy_gasi_list, flower_list, flower_pos_list, monster_list
+    return my_character,my_map, goal
 
 
 if __name__ == '__main__':

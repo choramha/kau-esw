@@ -6,18 +6,15 @@ class Stage1:
         self.platform_01_img = 'sprite/stage/stage_01_1.png'
         self.platform_o2_img = 'sprite/stage/stage_01_2.png'
         self.ledder = [(1095,47)] # 사다리 x축, y축
-        self.ledder_img = 'sprite/Ledder.png'
         self.flower = [(177,20),(448,169),(1064,20)] # 아이템 - 꽃 x축, y축
-        self.flower_img = 'sprite/Flower.png'
-        self.enemy_gasi = [(200,181),(798,32),(863,181),(897,181)]
-        self.enemy_gasi_img = 'sprite/Enemy_gasi.png'
-        self.enemy_monster = [(200,200)]
-        self.enemy_monster_img = 'sprite/Enemy_monster.png'
+        self.enemy_gasi = [(200,181),(863,181),(897,181)]
+        self.enemy_monster = [(600,81,532,532+96)] #몬스터 - 시작위치, 가동범위 (x1, x2)
+        self.goal = [1150,167]
 
 class Stage2:
     def __init__ (self):
         #플랫폼 위치 (x축 시작 지점, 발판 넓이)
-        self.platform_01 = [(96,194),(532,96)]
+        self.platform_01 = [(120,100),(600,196)]
         self.platform_02 = [(176,32),(640,194),(864,96),(1000,96)]
         self.platform_01_img = 'sprite/stage/stage_01_1.png'
         self.platform_o2_img = 'sprite/stage/stage_01_2.png'
@@ -25,10 +22,11 @@ class Stage2:
         self.ledder_img = 'sprite/Ledder.png'
         self.flower = [(177,20),(448,169),(1064,20)] # 아이템 - 꽃 x축, y축
         self.flower_img = 'sprite/Flower.png'
-        self.enemy_gasi = [(200,181),(798,32),(863,181),(897,181)]
+        self.enemy_gasi = [(200,181),(863,181),(897,181)]
         self.enemy_gasi_img = 'sprite/Enemy_gasi.png'
         self.enemy_monster = [(200,200)]
         self.enemy_monster_img = 'sprite/Enemy_monster.png'
+        self.goal = [1000,150]
 
 class Stage3:
     def __init__ (self):
@@ -45,6 +43,8 @@ class Stage3:
         self.enemy_gasi_img = 'sprite/Enemy_gasi.png'
         self.enemy_monster = [(200,200)]
         self.enemy_monster_img = 'sprite/Enemy_monster.png'
+        self.goal = [(1000,150)]
+
 
 class Stage4:
     def __init__ (self):
@@ -61,6 +61,8 @@ class Stage4:
         self.enemy_gasi_img = 'sprite/Enemy_gasi.png'
         self.enemy_monster = [(200,200)]
         self.enemy_monster_img = 'sprite/Enemy_monster.png'
+        self.goal = [(1000,150)]
+
 
 class Stage5:
     def __init__ (self):
@@ -77,3 +79,7 @@ class Stage5:
         self.enemy_gasi_img = 'sprite/Enemy_gasi.png'
         self.enemy_monster = [(200,200)]
         self.enemy_monster_img = 'sprite/Enemy_monster.png'
+        self.goal = [(1000,150)]
+
+
+#적 물리치거나 아이템 먹을때의 피드백 있음 good 

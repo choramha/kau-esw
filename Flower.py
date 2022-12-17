@@ -4,7 +4,6 @@ class Flower:
     def __init__(self,position):
         self.position = np.array([position[0],position[1],position[0] + 30,position[1] + 30])
         self.state = None
-
         
     def collision_check(self, character):
         self.state = None
