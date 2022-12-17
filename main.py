@@ -31,12 +31,12 @@ def main():
     global flower_pos_list
 
     #stage = Stage1()
-
-    my_character, my_map, goal = stage_init(stage_idx)
+    my_character = Character((0,150))
+    my_map, goal = stage_init(stage_idx,my_character)
     character_src = Image.open('sprite/Character.png').convert("RGBA")
     characterImg = character_src.resize((30,33))
     monsterImg = Image.open('sprite/Enemy_monster.png').convert("RGBA")
-
+    
     joystick = Joystick()
     x = 0
 
@@ -177,20 +177,20 @@ def main():
         cropImage.paste(characterImg, (position[0],position[1]),characterImg)
         
         # 바닥, 가시 실제 위치 시각적으로 보여줌 
-        """
+        
         my_draw.rectangle(tuple(goal.position),fill = (0,0,0))
         for platform in plat_list:
-            my_draw.rectangle(tuple(platform.position),fill = (255,255,255))
+            my_draw.rectangle(tuple(platform.position),fill = (255,255,255,50))
         for enemy_gasi in enemy_gasi_list:
-            my_draw.rectangle(tuple(enemy_gasi.position),fill = (255,255,255))
-        """
+            my_draw.rectangle(tuple(enemy_gasi.position),fill = (255,255,255,50))
+        
         #골대에 닿을 경우 스테이지 넘어감 
         if (goal.state == 'clear'):
             print("CLEAR!!!")
             stage_idx += 1
             goal.state == None
             x = 0
-            my_characetr,my_map,goal = stage_init(stage_idx)
+            my_map,goal = stage_init(stage_idx,my_character)
         
         joystick.disp.image(cropImage)
 
@@ -202,7 +202,7 @@ def main():
             my_draw.rectangle(tuple(flower_1.position),fill = (50,255,50))
             """
             
-def stage_init(stage_idx):
+def stage_init(stage_idx,my_character):
     global plat_list
     global ledder_list
     global enemy_gasi_list
@@ -232,36 +232,49 @@ def stage_init(stage_idx):
     flowerImg = Image.open('sprite/Flower.png').convert("RGBA")
     enemy_gasiImg = Image.open('sprite/Enemy_gasi.png').convert("RGBA")
     goalImg = Image.open('sprite/Goal.png').convert("RGBA")
-    my_character = Character((0,150))
+    
+    my_character.position[0] = 30
+    my_character.position[1] = 150
+    my_character.position[2] = 60
+    my_character.position[3] = 180
 
     #리스트 비우기
-    plat_bottom = Platform((-1000,200,5000))
+    #plat_bottom = Platform((-1000,200,5000))
     plat_celling = Platform((-100,-16,5000))
-    plat_list = [plat_bottom]
-    ledder_list = []
-    enemy_gasi_list = []
-    flower_list = []
-    monster_list = []
+    #plat_list = [plat_bottom]
+    plat_list.clear()
+    ledder_list.clear()
+    enemy_gasi_list.clear()
+    flower_list.clear()
+    monster_list.clear()
     flower_pos_list = stage.flower #꽃 초기위치 
     joystick = Joystick()
+
+    for i in plat_list:
+        print(i.position)
+    print("비웠는지 체크한거!!")
 
     #맵 이미지 설정
     my_map = Image.open('sprite/Map.png')
     
-    stage_1 = Image.open(stage.platform_01_img)
-    stage_2 = Image.open(stage.platform_o2_img)
+    stage_img = Image.open(stage.platform_img)
 
-    my_map.paste(stage_1,(0,120),stage_1)
-    my_map.paste(stage_2,(0,50),stage_2)
+    my_map.paste(stage_img,(0,0),stage_img)
     
     cropImage = my_map.crop((0,0,240,240))
 
     #플랫폼 바닥 설정
+    
     for i in stage.platform_01:
+        plat = Platform((i[0],200,i[1]))
+        plat_list.append(plat)
+    for i in stage.platform_02:
         plat = Platform((i[0],120,i[1]))
         plat_list.append(plat)
-
-    for i in stage.platform_02:
+    for i in stage.platform_03:
+        plat = Platform((i[0],84,i[1]))
+        plat_list.append(plat)
+    for i in stage.platform_04:
         plat = Platform((i[0],50,i[1]))
         plat_list.append(plat)
     plat_list.append(plat_celling)
@@ -299,7 +312,10 @@ def stage_init(stage_idx):
         monster = Enemy_monster((i[0],i[1]),(i[2],i[3]))
         monster_list.append(monster)
 
-    return my_character,my_map, goal
+    for i in plat_list:
+        print(i.position)
+    print("___________---")
+    return my_map, goal
 
 
 if __name__ == '__main__':
