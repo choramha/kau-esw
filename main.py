@@ -22,7 +22,13 @@ flower_pos_list = []
 #적 물리치거나 아이템 먹을때의 피드백 있음 good 
 
 def main():
+    font = ImageFont.truetype("NotoSansMono-Regular.ttf", 18)
+    Bold_font = ImageFont.truetype("NotoSansMono-Bold.ttf",24)
+
     stage_idx = 1
+    get_flower = 0
+    game_time = 0
+
     global plat_list
     global ledder_list
     global enemy_gasi_list
@@ -32,18 +38,39 @@ def main():
 
     #stage = Stage1()
     my_character = Character((0,150))
-    my_map, goal = stage_init(stage_idx,my_character)
+    my_map, goal,total_flower = stage_init(stage_idx,my_character)
     character_src = Image.open('sprite/Character.png').convert("RGBA")
     characterImg = character_src.resize((30,33))
     monsterImg = Image.open('sprite/Enemy_monster.png').convert("RGBA")
+    monster_src = Image.open('sprite/Monster/Enemy_monster_walk1.png').convert("RGBA")
+
+    startImg = Image.open('sprite/Scene/Start.png')
     
     joystick = Joystick()
     x = 0
 
     while True:
+        joystick.disp.image(startImg)
+        if not joystick.button_U.value: 
+            break
+        if not joystick.button_D.value:
+            break
+        if not joystick.button_R.value:
+            break
+        if not joystick.button_L.value:
+            break
+        if not joystick.button_A.value:
+            break
+        if not joystick.button_B.value:
+            break
+        
+
+
+    while True:
+        game_time += 1
         screen_move = 0
         command = {'move': False, 'up_pressed': False , 'down_pressed': False, 'left_pressed': False, 'right_pressed': False}
-        j = None
+        # j = None
 
         #사다리 상태 초기화 
         for ledder in ledder_list:
@@ -69,30 +96,56 @@ def main():
         if not joystick.button_L.value:  # left pressed
             command['left_pressed'] = True
             command['move'] = True
-
+            my_character.direction = "Left"
             x -= 5
             screen_move -= 5
 
         if not joystick.button_R.value:  # right pressed
             command['right_pressed'] = True
             command['move'] = True
-
+            my_character.direction = "Right"
             x += 5
             screen_move += 5
 
         if not joystick.button_A.value: # A pressed
-            print("A_pressed")
             if my_character.isjump == 0:
                 my_character.jump(1)
-            my_character.ceiling_check(plat_list)
-        
-        my_character.jump_update()
+                
+            
+        #캐릭터 충돌 체크 - 바닥, 천장
         my_character.move(command)
+        if(my_character.isjump > 0):
+            my_character.ceiling_check(plat_list)
+        my_character.jump_update()
+        my_character.bottom_check(plat_list)
     
+        #애니메이션 적용
+        if (game_time % 4 == 0):
+            character_src = Image.open(my_character.appearance[0]).convert("RGBA")
+            monster_src = Image.open('sprite/Monster/Enemy_monster_walk1.png').convert("RGBA")
+        elif (game_time % 4 == 1):
+            character_src = Image.open(my_character.appearance[1]).convert("RGBA")
+            monster_src = Image.open('sprite/Monster/Enemy_monster_walk2.png').convert("RGBA")
+        elif (game_time % 4 == 2):
+            character_src = Image.open(my_character.appearance[2]).convert("RGBA")
+            monster_src = Image.open('sprite/Monster/Enemy_monster_walk3.png').convert("RGBA")
+        elif (game_time % 4 == 3) :
+            character_src = Image.open(my_character.appearance[3]).convert("RGBA")
+            monster_src = Image.open('sprite/Monster/Enemy_monster_walk4.png').convert("RGBA")
+
+        if (my_character.direction_jump == "Jump_UP"):
+            character_src = Image.open(my_character.appearance[5]).convert("RGBA")
+        elif(my_character.direction_jump == "Jump_DOWN"):
+            character_src = Image.open(my_character.appearance[6]).convert("RGBA")
+
+        if (my_character.direction == "Left"):
+            character_src = character_src.transpose(Image.FLIP_LEFT_RIGHT)
+
         #배경 이동
         cropmap_x1 = 0 + x
         cropmap_x2 = 240 + x
-            #맵 크기 벗어날 경우 더이상 이동하지 않게 막음 
+
+        #맵 크기 벗어날 경우 더이상 이동하지 않게 막음 
         if cropmap_x1 < 0:
             cropmap_x1 = 0
             cropmap_x2 = 240
@@ -149,7 +202,7 @@ def main():
             flower.collision_check(my_character)
 
             if (flower.state == 'get'): #꽃을 얻을 경우 리스트에서 제거
-                print("Flower Get")
+                get_flower += 1
                 index = flower_list.index(flower)
                 flower_list.pop(index)
                 flower_pos_list.pop(index)
@@ -165,42 +218,94 @@ def main():
         for monster in monster_list:
             monster.bottomCheck()
             monster.move()
+            if (monster.move_direction <= 0):
+                monsterImg = monster_src
+            else : 
+                monsterImg = monster_src.transpose(Image.FLIP_LEFT_RIGHT)
             cropImage.paste(monsterImg, (monster.position[0],monster.position[1]),monsterImg)
     
         my_character.enemy_check(enemy_gasi_list)
         my_character.enemy_check(monster_list)
-        my_character.bottom_check(plat_list)
         goal.collision_check(my_character)
 
         #캐릭터 현 위치를 보여줌 
         position = tuple(my_character.position)
+
+        characterImg = character_src.resize((30,33))
+
         cropImage.paste(characterImg, (position[0],position[1]),characterImg)
-        
-        # 바닥, 가시 실제 위치 시각적으로 보여줌 
-        
+
+        flowerImg = Image.open('sprite/Flower.png').convert("RGBA")
+        small_flowerImg = flowerImg.resize((15,15))
+        cropImage.paste(small_flowerImg,(5,5),small_flowerImg)
+        # 바닥, 가시 실제 위치 시각적으로 보여줌 (#DEBUG)
+        """
         my_draw.rectangle(tuple(goal.position),fill = (0,0,0))
         for platform in plat_list:
             my_draw.rectangle(tuple(platform.position),fill = (255,255,255,50))
         for enemy_gasi in enemy_gasi_list:
             my_draw.rectangle(tuple(enemy_gasi.position),fill = (255,255,255,50))
-        
+        """
         #골대에 닿을 경우 스테이지 넘어감 
+        
+        # 체력이 0 이하가 되거나 캐릭터가 낭떨어지에 떨어지면 게임오버 
+        if (my_character.health <= 0 or my_character.position[1] > 240 ): 
+            game_over_msg1 = "GAME OVER"
+            game_over_msg2 = "press B button \n  to Retry"
+            my_draw.rectangle((0,0,240,240), fill = (0,0,0))
+            my_draw.text((50,80),game_over_msg1,fill = (255,255,255),font = Bold_font)
+            my_draw.text((40,120),game_over_msg2,fill=(255,255,255),font = font,spacing = 0)
+
+            if not joystick.button_B.value: #B버튼을 눌러 스테이지 재도전
+                x = 0
+                get_flower = 0
+                my_map,goal,total_flower = stage_init(stage_idx,my_character)
+
+        else : #체력 수 만큼 하트 이미지를 보여줌 
+            heartImgSrc = "heart_" + str(my_character.health) + ".png"
+            heartImg = Image.open('sprite/heart/'+heartImgSrc)
+            heartImg = heartImg.resize((57,15))
+            cropImage.paste(heartImg,(180, 5),heartImg)
+
         if (goal.state == 'clear'):
-            print("CLEAR!!!")
-            stage_idx += 1
-            goal.state == None
-            x = 0
-            my_map,goal = stage_init(stage_idx,my_character)
+            if(get_flower == total_flower):
+                if (stage_idx == 5): #모든 스테이지 클리어
+                    break
+            
+                else:
+                    stage_idx += 1
+                    goal.state == None
+                    x = 0
+                    get_flower = 0
+                    my_map,goal,total_flower = stage_init(stage_idx,my_character)
+            else:
+                msg = "Get All Flower!!"
+                my_draw.text((40,80),msg,fill = (0,0,0), font = font)
+                goal.state = None
+            
+        
+        text = str(get_flower) + "/" + str(total_flower)
+        my_draw.text((25,0),text,fill = (255,255,255),font = font)
+    
+
+
+        #혹시 천장을 뚫고 나갔을 경우를 대비 
+        if (my_character.position[3] < 0):
+            my_character.position[1] = 0
+            my_character.position[3] = 30
         
         joystick.disp.image(cropImage)
 
-        #my_draw.rectangle(tuple(ledder_1.position),fill = (0,0,0))
-        #my_draw.rectangle(tuple(enemy_1.position),fill = (0,0,0))
-        
-        """
-        if(flower_1.state != 'get'):
-            my_draw.rectangle(tuple(flower_1.position),fill = (50,255,50))
-            """
+    for i in range(1,9):
+        clear_src = 'sprite/Scene/Clear' + str(i) + '.png'
+        clear = Image.open(clear_src)
+        time.sleep(0.5)
+        joystick.disp.image(clear)
+    while True:
+        clear = Image.open('sprite/Scene/Clear9.png')
+        joystick.disp.image(clear)
+
+
             
 def stage_init(stage_idx,my_character):
     global plat_list
@@ -233,15 +338,13 @@ def stage_init(stage_idx,my_character):
     enemy_gasiImg = Image.open('sprite/Enemy_gasi.png').convert("RGBA")
     goalImg = Image.open('sprite/Goal.png').convert("RGBA")
     
-    my_character.position[0] = 30
+    my_character.position[0] = 0
     my_character.position[1] = 150
-    my_character.position[2] = 60
+    my_character.position[2] = 30
     my_character.position[3] = 180
 
     #리스트 비우기
-    #plat_bottom = Platform((-1000,200,5000))
-    plat_celling = Platform((-100,-16,5000))
-    #plat_list = [plat_bottom]
+    plat_ceiling = Platform((-100,-60,5000,49))
     plat_list.clear()
     ledder_list.clear()
     enemy_gasi_list.clear()
@@ -249,10 +352,7 @@ def stage_init(stage_idx,my_character):
     monster_list.clear()
     flower_pos_list = stage.flower #꽃 초기위치 
     joystick = Joystick()
-
-    for i in plat_list:
-        print(i.position)
-    print("비웠는지 체크한거!!")
+    my_character.health = 3
 
     #맵 이미지 설정
     my_map = Image.open('sprite/Map.png')
@@ -266,18 +366,18 @@ def stage_init(stage_idx,my_character):
     #플랫폼 바닥 설정
     
     for i in stage.platform_01:
-        plat = Platform((i[0],200,i[1]))
+        plat = Platform((i[0],200,i[1],500))
         plat_list.append(plat)
     for i in stage.platform_02:
-        plat = Platform((i[0],120,i[1]))
+        plat = Platform((i[0],120,i[1],16))
         plat_list.append(plat)
     for i in stage.platform_03:
-        plat = Platform((i[0],84,i[1]))
+        plat = Platform((i[0],84,i[1],16))
         plat_list.append(plat)
     for i in stage.platform_04:
-        plat = Platform((i[0],50,i[1]))
+        plat = Platform((i[0],50,i[1],16))
         plat_list.append(plat)
-    plat_list.append(plat_celling)
+    plat_list.append(plat_ceiling)
     
     #사다리 설정 
     for i in stage.ledder:
@@ -312,10 +412,7 @@ def stage_init(stage_idx,my_character):
         monster = Enemy_monster((i[0],i[1]),(i[2],i[3]))
         monster_list.append(monster)
 
-    for i in plat_list:
-        print(i.position)
-    print("___________---")
-    return my_map, goal
+    return my_map, goal, len(flower_list)
 
 
 if __name__ == '__main__':

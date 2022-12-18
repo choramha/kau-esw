@@ -10,7 +10,7 @@ class Stage1:
         self.flower = [(177,20),(448,169),(1064,20)] # 아이템 - 꽃 x축, y축
         self.enemy_gasi = [(200,181),(863,181),(897,181)]
         self.enemy_monster = [] #몬스터 - 시작위치, 이동범위 (x1, x2)
-        self.goal = [150,167]
+        self.goal = [1155,167]
 
 class Stage2:
     def __init__ (self):
@@ -31,13 +31,13 @@ class Stage3:
         #플랫폼 위치 (x축 시작 지점, 발판 넓이)
         self.platform_01 = [(-100,352),(418,2000)] 
         self.platform_02 = [(272,104),(637,30)]
-        self.platform_03 = [(758,164),(1121,30)]
+        self.platform_03 = [(758,194),(1121,30)]
         self.platform_04 = [(0,78),(635,62),(990,62)]
         self.platform_img = 'sprite/stage/stage_03.png'
         self.ledder = [(76,46)] # 사다리 x축, y축
         self.flower = [(284,90),(651,20),(837,170),(1121,54),(1170,169)] # 아이템 - 꽃 x축, y축
-        self.enemy_gasi = [(706,181),(790,181),(880,181),(970,181)]
-        self.enemy_monster = [(170,163,0,249),(870,48,760,950)] #몬스터 - 시작위치(x,y), 이동범위 (x1, x2)
+        self.enemy_gasi = [(706,181)]
+        self.enemy_monster = [(870,48,760,950)] #몬스터 - 시작위치(x,y), 이동범위 (x1, x2)
         self.goal = [9,18]
 
 
