@@ -7,9 +7,7 @@ class Flower:
         
     def collision_check(self, character):
         self.state = None
-        #print("position CHeck: ",self.position, character.position)
         collision = self.overlap(self.position, character.position)
-        #print(collision)
 
         if collision:
             self.state = 'get'

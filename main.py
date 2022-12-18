@@ -49,7 +49,7 @@ def main():
     joystick = Joystick()
     x = 0
 
-    while True:
+    while True: #게임 시작 - 타이틀을 보여줌. 아무 키나 누르면 게임 시작
         joystick.disp.image(startImg)
         if not joystick.button_U.value: 
             break
@@ -214,7 +214,8 @@ def main():
 
         
         my_draw = ImageDraw.Draw(cropImage)
-            #충돌체크  
+
+            #몬스터 이동
         for monster in monster_list:
             monster.bottomCheck()
             monster.move()
@@ -224,29 +225,20 @@ def main():
                 monsterImg = monster_src.transpose(Image.FLIP_LEFT_RIGHT)
             cropImage.paste(monsterImg, (monster.position[0],monster.position[1]),monsterImg)
     
+        #몬스터와 부딪혔는지 체크
         my_character.enemy_check(enemy_gasi_list)
         my_character.enemy_check(monster_list)
         goal.collision_check(my_character)
 
-        #캐릭터 현 위치를 보여줌 
+        #캐릭터 현 위치
         position = tuple(my_character.position)
-
         characterImg = character_src.resize((30,33))
-
         cropImage.paste(characterImg, (position[0],position[1]),characterImg)
 
+        #화면 좌측 상단 조그만 꽃 아이콘 
         flowerImg = Image.open('sprite/Flower.png').convert("RGBA")
         small_flowerImg = flowerImg.resize((15,15))
         cropImage.paste(small_flowerImg,(5,5),small_flowerImg)
-        # 바닥, 가시 실제 위치 시각적으로 보여줌 (#DEBUG)
-        """
-        my_draw.rectangle(tuple(goal.position),fill = (0,0,0))
-        for platform in plat_list:
-            my_draw.rectangle(tuple(platform.position),fill = (255,255,255,50))
-        for enemy_gasi in enemy_gasi_list:
-            my_draw.rectangle(tuple(enemy_gasi.position),fill = (255,255,255,50))
-        """
-        #골대에 닿을 경우 스테이지 넘어감 
         
         # 체력이 0 이하가 되거나 캐릭터가 낭떨어지에 떨어지면 게임오버 
         if (my_character.health <= 0 or my_character.position[1] > 240 ): 
@@ -267,6 +259,7 @@ def main():
             heartImg = heartImg.resize((57,15))
             cropImage.paste(heartImg,(180, 5),heartImg)
 
+        #모든 꽃을 먹고 깃발에 닿으면 스테이지 클리어
         if (goal.state == 'clear'):
             if(get_flower == total_flower):
                 if (stage_idx == 5): #모든 스테이지 클리어
@@ -296,6 +289,7 @@ def main():
         
         joystick.disp.image(cropImage)
 
+    #클리어 시 보여줄 이미지 
     for i in range(1,9):
         clear_src = 'sprite/Scene/Clear' + str(i) + '.png'
         clear = Image.open(clear_src)
@@ -307,7 +301,7 @@ def main():
 
 
             
-def stage_init(stage_idx,my_character):
+def stage_init(stage_idx,my_character): #스테이지 초기화
     global plat_list
     global ledder_list
     global enemy_gasi_list
@@ -315,6 +309,7 @@ def stage_init(stage_idx,my_character):
     global monster_list
     global flower_pos_list
 
+    #지금이 몇번째 스테이지인지 확인 
     if (stage_idx == 1):
         stage = Stage1()
     elif(stage_idx == 2):
@@ -328,22 +323,23 @@ def stage_init(stage_idx,my_character):
     else:
         print("ERROR!!!!!!")
 
-        #캐릭터 설정 
-
+    #캐릭터 설정 
     character_src = Image.open('sprite/Character.png').convert("RGBA")
     characterImg = character_src.resize((30,33))
+    my_character.position[0] = 0
+    my_character.position[1] = 150
+    my_character.position[2] = 30
+    my_character.position[3] = 180
 
     ledderImg = Image.open('sprite/Ledder.png').convert("RGBA")
     flowerImg = Image.open('sprite/Flower.png').convert("RGBA")
     enemy_gasiImg = Image.open('sprite/Enemy_gasi.png').convert("RGBA")
     goalImg = Image.open('sprite/Goal.png').convert("RGBA")
     
-    my_character.position[0] = 0
-    my_character.position[1] = 150
-    my_character.position[2] = 30
-    my_character.position[3] = 180
 
-    #리스트 비우기
+
+
+    #리스트 초기화
     plat_ceiling = Platform((-100,-60,5000,49))
     plat_list.clear()
     ledder_list.clear()
@@ -395,6 +391,7 @@ def stage_init(stage_idx,my_character):
     for enemy_gasi in enemy_gasi_list:
         my_map.paste(enemy_gasiImg,(enemy_gasi.position[0],enemy_gasi.position[1]),enemy_gasiImg)
 
+    #골 깃발 설정
     goal = Goal((stage.goal[0],stage.goal[1]))  
     my_map.paste(goalImg,(goal.position[0],goal.position[1]),goalImg)
 

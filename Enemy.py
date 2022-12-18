@@ -19,10 +19,10 @@ class Enemy_monster:
 
         self.count += 1
         if ((self.count % 10) == 0):
-            self.move_direction = np.random.randint(-1,2)
+            self.move_direction = np.random.randint(-1,2) #랜덤으로 왼쪽으로 가기, 오른쪽으로가기, 가만히 있기 중 선택
             self.count = 0
         
-    def bottomCheck(self):
+    def bottomCheck(self): #정해진 구역을 벗어나지 않음
         self.bottom_check = None
         collision = self.overlap_bottom(self.position, self.move_range)
         if not collision:
@@ -36,12 +36,3 @@ class Enemy_monster:
 
     def overlap_bottom(self, ego_position, other_position): #ego: 몬스터, otehr: 플랫폼
         return ego_position[0] > other_position[0] - 20 and ego_position[2] < other_position[1]
-
-        
-        """
-        만약에 바닥 충돌일때만 : 이동
-        5초마다 한번씩 방향을 바꿈 (rand -1, 1, 0)
-        0이 아니면 state = move
-        0이면 None?
-
-        """
